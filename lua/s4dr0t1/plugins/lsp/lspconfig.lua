@@ -69,16 +69,19 @@ return {
 			local set_lsp_key = vim.api.nvim_buf_set_keymap
 
 			-- Open float menu for the LSP to show diagnostics
-			set_lsp_key(bufnr, "n", "gl", "<cmd>lua vim.diagnostic.open_float({ border = 'rounded' })<CR>", opts)
+			set_lsp_key(bufnr, "n", "gl", "<cmd>lua vim.diagnostic.open_float({ border = 'rounded' })<CR>",
+				opts)
 
 			-- Hover feature
 			set_lsp_key(bufnr, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
 
 			-- Goto the previous diagnostic message
-			set_lsp_key(bufnr, "n", "gk", '<cmd>lua vim.diagnostic.goto_prev({ border = "rounded" })<CR>', opts)
+			set_lsp_key(bufnr, "n", "gk", '<cmd>lua vim.diagnostic.goto_prev({ border = "rounded" })<CR>',
+				opts)
 
 			-- Goto the next diagnostic message
-			set_lsp_key(bufnr, "n", "gj", '<cmd>lua vim.diagnostic.goto_next({ border = "rounded" })<CR>', opts)
+			set_lsp_key(bufnr, "n", "gj", '<cmd>lua vim.diagnostic.goto_next({ border = "rounded" })<CR>',
+				opts)
 
 			-- Goto the implementation of this thing
 			set_lsp_key(bufnr, "n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
@@ -178,9 +181,9 @@ return {
 			If you use this approach, make sure you don't also manually set up servers directly via `lspconfig` as this will cause servers to be set up more than once.
 		--]]
 		-- require("mason-lspconfig").setup_handlers({})
-		mason_lspconfig.setup_handlers ({
+		mason_lspconfig.setup_handlers({
 			-- The default handler, and it will be called for each installed server that hasn't been overridden below
-			function (server_name)
+			function(server_name)
 				--require("lspconfig")[server_name].setup {}
 				lspconfig[server_name].setup({
 					capabilities = custom_capabilities,
@@ -189,7 +192,7 @@ return {
 			end,
 
 			["lua_ls"] = function()
-				require'lspconfig'.lua_ls.setup {
+				require 'lspconfig'.lua_ls.setup {
 					on_attach = Custom_attach,
 					capability = custom_capabilities,
 					settings = {
@@ -198,7 +201,7 @@ return {
 								version = 'LuaJIT',
 							},
 							diagnostics = {
-								globals = {'vim'},
+								globals = { 'vim' },
 							},
 							telemetry = {
 								enable = false,
@@ -210,7 +213,7 @@ return {
 						}
 					}
 				}
-			end
+			end,
 
 			-- Overriding the default handler
 			--[[

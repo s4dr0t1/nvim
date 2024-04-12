@@ -60,28 +60,32 @@ return {
 
 				-- LSP
 				-- I'm using the lspconfig names here instead of the mason names
-				'asm_lsp',
+				--'asm_lsp',
+
+				-- bashls is only for LSP, no formatting or linter
 				'bashls',
 				'jsonls',
 				'lua_ls',
 				'clangd',
-				'pyright',
+				--'pyright',
+				'basedpyright',
 				'rust_analyzer',
 				'tsserver',
 				'marksman',
 				'yamlls',
-				'vale_ls',
+				--'vale_ls',
 
 				-- Formatters
 				'shfmt',
 				'black',
-				'beautysh',
 
 				-- Linters
+
+				-- bashls only supports LSP, shfmt formatting, shellcheck does the actual linting via static analysis
 				'shellcheck',
 				'actionlint',
-				'gitleaks',
-				'vale'
+				--'gitleaks',
+				--'vale'
 			},
 
 			-- Language servers

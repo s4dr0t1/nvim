@@ -13,8 +13,8 @@ return {
 	},
 	dependencies = {
 		"nvim-lua/plenary.nvim",
-		'neovim/nvim-lspconfig'
-
+		"neovim/nvim-lspconfig",
+		--"nvimtools/none-ls-extras.nvim",
 	},
 
 	config = function()
@@ -22,6 +22,12 @@ return {
 		local null_ls_utils = require("null-ls.utils")
 
 
+		--[[
+			- Builtins have been shifted to a new repository
+			- Check these links for more information
+				- https://github.com/nvimtools/none-ls-extras.nvim
+				- https://github.com/nvimtools/none-ls.nvim/issues/58
+		--]]
 		local formatting = null_ls.builtins.formatting
 		local diagnostics = null_ls.builtins.diagnostics
 
@@ -39,12 +45,15 @@ return {
 				-- Formatters
 				formatting.black,
 				formatting.shfmt,
-				formatting.beautysh,
+
 
 				-- Linters
-				diagnostics.shellcheck,
+				-- Shellcheck can be used through bashls, no need for a none-ls plugin separate usage
+				--diagnostics.shellcheck,
+
 				diagnostics.actionlint,
-				diagnostics.gitleaks,
+				--diagnostics.gitleaks,
+				--[[
 				diagnostics.vale.with({
 					extra_filetypes = {
 						"txt",
@@ -52,6 +61,7 @@ return {
 					},
 					extra_args = { "--config", vim.fn.expand("~/.config/vale/.vale.ini") },
 				}),
+				--]]
 			},
 		})
 	end
