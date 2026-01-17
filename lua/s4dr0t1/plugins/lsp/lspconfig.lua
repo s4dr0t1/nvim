@@ -49,7 +49,8 @@ return {
 			Pay extra attention to this if you lazy-load plugins, or somehow "chain"
 			the loading of plugins via your plugin manager.
 		--]]
-		local lspconfig = require("lspconfig")
+		-- Using new vim.lsp.config/enable API (Neovim 0.11+)
+		-- https://github.com/neovim/nvim-lspconfig
 
 		-- Starting up mason to make sure we get their order right
 		local mason = require('mason')
@@ -175,26 +176,34 @@ return {
 
 		--[[
 			Automatic server configuration
-			Automatically setup LSP shit installed using mason without having to manually add each server to the configuration
-			https://github.com/williamboman/mason-lspconfig.nvim/blob/0989bdf4fdf7b5aa4c74131d7ffccc3f399ac788/doc/mason-lspconfig.txt#L164
-
-			If you use this approach, make sure you don't also manually set up servers directly via `lspconfig` as this will cause servers to be set up more than once.
+			Automatically setup LSP servers installed using mason without having to manually add each server to the configuration
+			Note: setup_handlers was removed in mason-lspconfig v2.x, so we manually iterate over installed servers
 		--]]
-		-- require("mason-lspconfig").setup_handlers({})
-		mason_lspconfig.setup_handlers({
-			-- The default handler, and it will be called for each installed server that hasn't been overridden below
-			function(server_name)
-				--require("lspconfig")[server_name].setup {}
-				lspconfig[server_name].setup({
-					capabilities = custom_capabilities,
-					on_attach = Custom_attach
-				})
-			end,
+		local installed_servers = mason_lspconfig.get_installed_servers()
 
-			["lua_ls"] = function()
-				require 'lspconfig'.lua_ls.setup {
+		--[[
+			To add custom configuration for a specific server, add an elseif block below.
+			The server names are lspconfig names, not Mason package names.
+			Example for rust_analyzer:
+
+			elseif server_name == "rust_analyzer" then
+				vim.lsp.config('rust_analyzer', {
 					on_attach = Custom_attach,
-					capability = custom_capabilities,
+					capabilities = custom_capabilities,
+					settings = {
+						["rust-analyzer"] = {
+							checkOnSave = { command = "clippy" },
+						}
+					}
+				})
+				vim.lsp.enable('rust_analyzer')
+		--]]
+		for _, server_name in ipairs(installed_servers) do
+			if server_name == "lua_ls" then
+				-- Configure lua_ls with custom settings
+				vim.lsp.config('lua_ls', {
+					on_attach = Custom_attach,
+					capabilities = custom_capabilities,
 					settings = {
 						Lua = {
 							runtime = {
@@ -212,19 +221,17 @@ return {
 							}
 						}
 					}
-				}
-			end,
-
-			-- Overriding the default handler
-			--[[
-				We can also specify dedicated handler for specific servers
-				The server names provided as keys are the lspconfig server names, not mason's package names
-				["rust_analyzer"] = function ()
-					require("rust-tools").setup {}
-					-- Can also put the settings in a different file
-					-- require('lsp/server_settings/file.lua')
-				end
-			--]]
-		})
+				})
+				vim.lsp.enable('lua_ls')
+			-- Add more elseif blocks here for other servers that need custom config
+			else
+				-- Default handler for all other servers
+				vim.lsp.config(server_name, {
+					capabilities = custom_capabilities,
+					on_attach = Custom_attach
+				})
+				vim.lsp.enable(server_name)
+			end
+		end
 	end
 }

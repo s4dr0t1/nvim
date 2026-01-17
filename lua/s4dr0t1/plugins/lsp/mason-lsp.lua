@@ -58,30 +58,25 @@ return {
 					{ 'bash-language-server', auto_update = true },
 				--]]
 
-				-- LSP
-				-- I'm using the lspconfig names here instead of the mason names
-				--'asm_lsp',
-
-				-- bashls is only for LSP, no formatting or linter
-				'bashls',
-				'jsonls',
-				'lua_ls',
+				-- LSP (using Mason package names, not lspconfig names)
+				--'asm-lsp',
+				'bash-language-server',
+				'json-lsp',
+				'lua-language-server',
 				'clangd',
 				--'pyright',
 				'basedpyright',
-				'rust_analyzer',
-				'tsserver',
+				'rust-analyzer',
 				'marksman',
-				'yamlls',
-				--'vale_ls',
+				'yaml-language-server',
+				--'vale-ls',
 
 				-- Formatters
 				'shfmt',
-				'black',
+				--'black',
 
 				-- Linters
-
-				-- bashls only supports LSP, shfmt formatting, shellcheck does the actual linting via static analysis
+				-- bash-language-server only supports LSP, shfmt formatting, shellcheck does the actual linting via static analysis
 				'shellcheck',
 				'actionlint',
 				--'gitleaks',

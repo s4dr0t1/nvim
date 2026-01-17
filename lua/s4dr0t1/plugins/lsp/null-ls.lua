@@ -43,7 +43,7 @@ return {
 			-- Copy paste all the sources which are not a LSP from the mason.lua configuration
 			sources = {
 				-- Formatters
-				formatting.black,
+				-- formatting.black,
 				formatting.shfmt,
 
 

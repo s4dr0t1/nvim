@@ -14,8 +14,8 @@ return {
 		"BufNewFile"
 	},
 	config = function()
-		require("nvim-treesitter.configs").setup({
-			-- A list of parser names, or "all"
+		-- New nvim-treesitter API (the configs module was removed)
+		require("nvim-treesitter").setup({
 			ensure_installed = {
 				"c",
 				"rust",
@@ -36,32 +36,13 @@ return {
 				"git_config",
 				"git_rebase"
 			},
+		})
 
-			-- Install parsers synchronously (only applied to `ensure_installed`)
-			sync_install = false,
-
-			-- Automatically install missing parsers when entering buffer
-			auto_install = true,
-
-			-- List of parsers to ignore installing (for "all")
-			ignore_install = {},
-
-			-- Enable indentation
-			--indent = {
-			--enable = true,
-			--}
-			-- Let treesitter augment syntax highlighting
-			highlight = {
-				enable = true,
-				disable = {},
-				additional_vim_regex_highlighting = true,
-			},
-
-			-- Make the nvim-autopair plugin Treesitter aware, is a module of Treesitter, not a standalone plugin
-			-- windwp/nvim-ts-autotag
-			autopairs = {
-				enable = true
-			}
+		-- Enable treesitter-based highlighting (now built into Neovim)
+		vim.api.nvim_create_autocmd("FileType", {
+			callback = function()
+				pcall(vim.treesitter.start)
+			end
 		})
 	end
 }
