@@ -10,8 +10,7 @@ return {
 	version = "*",
 	event = {
 		"BufReadPre",
-		"BufNewFile",
-		"VeryLazy"
+		"BufNewFile"
 	},
 
 	-- Similar to plugin.setup({})

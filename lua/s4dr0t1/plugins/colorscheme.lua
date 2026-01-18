@@ -7,9 +7,6 @@
 return {
 	'EdenEast/nightfox.nvim',
 	priority = 1000,
-	dependencies = {
-		'nvim-treesitter/nvim-treesitter',
-	},
 
 	-- Custom settings for  the plugin
 	config = function()
