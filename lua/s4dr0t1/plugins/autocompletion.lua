@@ -196,8 +196,6 @@ return {
 						cmp.select_next_item()
 						if #cmp.get_entries() == 1 then
 							cmp.confirm({ select = true })
-						else
-							cmp.select_next_item()
 						end
 					elseif luasnip.expand_or_jumpable() then
 						luasnip.expand_or_jump()
