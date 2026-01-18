@@ -10,6 +10,7 @@ return {
 	event = { "BufReadPre", "BufNewFile" },
 	dependencies = {
 		'nvim-treesitter/nvim-treesitter',
+		'HiPhish/rainbow-delimiters.nvim'
 	},
 
 	config = function()
@@ -34,19 +35,27 @@ return {
 			vim.api.nvim_set_hl(0, "RainbowCyan", { fg = "#56B6C2" })
 		end)
 
+		-- Integration with rainbow delimiters
+		-- https://github.com/lukas-reineke/indent-blankline.nvim?tab=readme-ov-file#rainbow-delimitersnvim-integration
+		vim.g.rainbow_delimiters = { highlight = highlight }
+
 		-- The actual setup
 		require("ibl").setup {
-			indent = {
-				char = "┆",
-				highlight = highlight
-			},
-
 			-- requires treesitter to be working properly
 			scope = {
 				enabled = true,
 				show_start = true,
 				highlight = highlight,
+			},
+
+			indent = {
+				char = "┆",
+				highlight = highlight
 			}
+
 		}
+
+		-- rainbow-delimiters.js
+		hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
 	end
 }
