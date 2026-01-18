@@ -1,5 +1,5 @@
 --[[
-	Name: lsp/init.lua
+	Name: core/init.lua
 	Description: Main configuration file for core settings of neovim
 --]]
 
