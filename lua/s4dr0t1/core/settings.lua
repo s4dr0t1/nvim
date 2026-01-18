@@ -16,8 +16,10 @@ local options = {
 	number = true,
 	relativenumber = true,
 
-	-- Ignore case when searching
+	-- Ignore case when searching, but enforce case sensitivity when intentionally inputting an uppercase character (smartcase)
 	ignorecase = true,
+	smartcase = true,
+
 	-- Show search results as you type
 	incsearch = true,
 	-- Highlight all matches on previous search pattern
@@ -40,6 +42,10 @@ local options = {
 
 	-- Lazy Redraw
 	lazyredraw = true,
+
+	-- Integrate with system clipboard
+	-- https://github.com/jbranchaud/til/blob/master/neovim/allow-neovim-to-copy-paste-with-system-clipboard.md
+	clipboard = "unnamedplus",
 
 	-- Use bash to execute commands, instead of the default shell
 	shell = "/usr/bin/env bash",
