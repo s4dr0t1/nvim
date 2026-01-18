@@ -1,11 +1,11 @@
 --[[
 	Name: File explorer
 	Description: Configuration files for the nvim file explorer
-	Contains: kyazdani42/nvim-tree.lua
+	Contains: nvim-tree/nvim-tree.lua
 --]]
 
 return {
-	'kyazdani42/nvim-tree.lua',
+	'nvim-tree/nvim-tree.lua',
 	version = "*",
 	lazy = false,
 	dependencies = {
