@@ -25,5 +25,5 @@ My configuration for Neovim has been setup with bootstrapping code powered by [l
 ```bash
 $ brew install neovim 
 $ cd ~/.config/
-$ git clone https://github.com/***REMOVED***/nvim/
+$ git clone https://github.com/s4dr0t1/nvim/
 ``````
