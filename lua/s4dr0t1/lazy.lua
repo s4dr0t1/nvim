@@ -6,7 +6,7 @@
 
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
 	vim.fn.system({
 		"git",
 		"clone",
@@ -35,12 +35,10 @@ lazy.setup(
 			-- What colorscheme to use when installing packages at the start
 			colorscheme = { "carbonfox" },
 		},
-	},
-	{
 		-- Don't notify the user whenever any change has been done to the lazy.nvim configuration file
 		change_detection = {
 			notify = false,
-		}
+		},
 	}
 )
 
