@@ -6,7 +6,9 @@
 
 return {
 	'EdenEast/nightfox.nvim',
+	-- An explicit combination of priority and lazy=false means the color-scheme is loaded even faster
 	priority = 1000,
+	lazy = false,
 
 	-- Custom settings for  the plugin
 	config = function()
