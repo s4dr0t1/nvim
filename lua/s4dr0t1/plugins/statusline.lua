@@ -15,8 +15,6 @@ return {
 			extensions = {
 				'nvim-tree',
 				'man',
-				'symbols-outline',
-				'toggleterm',
 				'lazy',
 				'mason',
 			},
