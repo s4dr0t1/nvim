@@ -55,7 +55,7 @@ return {
 			unpack = unpack or table.unpack
 			local line, col = unpack(vim.api.nvim_win_get_cursor(0))
 			return col ~= 0 and
-			vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+			    vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
 		end
 
 		-- Specifying custom icons for the autocompletion menu
@@ -248,12 +248,5 @@ return {
 				end
 			},
 		})
-
-		-- Add parentheses after selecting function or method item using autopairs
-		local cmp_autopairs = require('nvim-autopairs.completion.cmp')
-		cmp.event:on(
-			'confirm_done',
-			cmp_autopairs.on_confirm_done()
-		)
 	end
 }
