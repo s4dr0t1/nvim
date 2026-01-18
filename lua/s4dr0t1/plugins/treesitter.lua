@@ -9,14 +9,18 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
 	build = ":TSUpdate",
+	--[[
+	-- The new rewrite doesn't support lazy-reloading
 	event = {
 		"BufReadPre",
 		"BufNewFile"
 	},
+	--]]
 	config = function()
-		-- New nvim-treesitter API (the configs module was removed)
-		require("nvim-treesitter").setup({
-			ensure_installed = {
+		require 'nvim-treesitter'.install(
+
+		-- Pre-emptively install the following automatically
+			{
 				"c",
 				"rust",
 				"bash",
@@ -35,14 +39,7 @@ return {
 				"gitignore",
 				"git_config",
 				"git_rebase"
-			},
-		})
-
-		-- Enable treesitter-based highlighting (now built into Neovim)
-		vim.api.nvim_create_autocmd("FileType", {
-			callback = function()
-				pcall(vim.treesitter.start)
-			end
-		})
+			}
+		)
 	end
 }
