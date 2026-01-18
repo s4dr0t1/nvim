@@ -7,7 +7,6 @@
 
 return {
 	'nvim-telescope/telescope.nvim',
-	branch = '0.1.x',
 	dependencies = {
 		'nvim-tree/nvim-web-devicons',
 		'nvim-lua/plenary.nvim',
@@ -28,10 +27,24 @@ return {
 		map('n', '<leader>fb', '<cmd>Telescope buffers<cr>', { silent = true })
 		map('n', '<leader>fh', '<cmd>Telescope help_tags<cr>', { silent = true })
 	--]]
-		{ "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find files using Telescope",      mode = "n" },
-		{ "<leader>fg", "<cmd>Telescope live_grep<cr>",  desc = "Live grep using Telescope",       mode = "n" },
-		{ "<leader>fb", "<cmd>Telescope buffers<cr>",    desc = "Find buffers using Telescope",    mode = "n" },
-		{ "<leader>fh", "<cmd>Telescope help_tags<cr>",  desc = "Search for tags using Telescope", mode = "n" },
+		-- { "<leader>ff", "<cmd>Telescope find_files<cr>",                       desc = "Find files using Telescope",      mode = "n" },
+		{ "<leader>ff",  function() vim.find_files_from_project_git_root() end, desc = "Find files using Telescope with git awareness" },
+		{ "<leader>fg",  "<cmd>Telescope live_grep<cr>",                        desc = "Live grep using Telescope",                                                                                                 mode = "n" },
+		{ "<leader>fb",  "<cmd>Telescope buffers<cr>",                          desc = "Find buffers using Telescope",                                                                                              mode = "n" },
+		{ "<leader>fh",  "<cmd>Telescope help_tags<cr>",                        desc = "Search for tags using Telescope",                                                                                           mode = "n" },
+
+		{ "<leader>fd",  "<cmd>Telescope lsp_definitions<cr>",                  desc = "Goto the definition of the word under the cursor, if there's only one, otherwise show all options in Telescope" },
+		{ "<leader>ftd", "<cmd>Telescope lsp_type_definitions<cr>",             desc = "Goto the definition of the type of the word under the cursor, if there's only one, otherwise show all options in Telescope" },
+
+		{ "<leader>fi",  "<cmd>Telescope lsp_incoming_calls<cr>",               desc = "Find incoming calls to the current symbol" },
+		{ "<leader>fo",  "<cmd>Telescope lsp_outgoing_calls<cr>",               desc = "Find outgoing calls to the current symbol" },
+		{ "<leader>fr",  "<cmd>Telescope lsp_references<cr>",                   desc = "Find rerferences to the current symbol" },
+		{ "<leader>fs",  "<cmd>Telescope lsp_document_symbols<cr>",             desc = "Search across current file's symbols" },
+		{ "<leader>fS",  "<cmd>Telescope lsp_workspace_symbols<cr>",            desc = "Search across symbols across the entire workspace" },
+
+		{ "<leader>gc",  "<cmd>Telescope git_commits<cr>",                      desc = "Git commits" },
+		{ "<leader>gb",  "<cmd>Telescope git_branches<cr>",                     desc = "Git branches" },
+		{ "<leader>gs",  "<cmd>Telescope git_status<cr>",                       desc = "Git status" },
 	},
 
 	config = function()
@@ -41,18 +54,17 @@ return {
 		local Job = require("plenary.job")
 
 		-- Find files from project git root with fallback
+		-- This function is basically find_files() combined with git_files(). The appeal of this function over the default find_files() is that you can find files that are not tracked by git. Also, find_files() only finds files in the current directory but this function finds files regardless of your current directory as long as you're in the project directory.
 		-- https://github.com/nvim-telescope/telescope.nvim/wiki/Configuration-Recipes#find-files-from-project-git-root-with-fallback
 		function vim.find_files_from_project_git_root()
 			local function is_git_repo()
 				vim.fn.system("git rev-parse --is-inside-work-tree")
 				return vim.v.shell_error == 0
 			end
-
 			local function get_git_root()
 				local dot_git_path = vim.fn.finddir(".git", ".;")
 				return vim.fn.fnamemodify(dot_git_path, ":h")
 			end
-
 			local opts = {}
 			if is_git_repo() then
 				opts = {
@@ -108,6 +120,24 @@ return {
 		-- Telescope configuration
 		require("telescope").setup({
 			defaults = {
+				-- Don't preview beyond a certain filesize
+				preview = {
+					filesize_limit = 1, -- MB
+				},
+				layout_strategy = "vertical",
+				layout_config = {
+					horizontal = {
+						width = 0.7,
+						prompt_position = "bottom"
+					},
+					vertical = {
+						width = 0.7,
+						prompt_position = "bottom"
+					}
+				},
+
+				-- Smart-truncate path for longer path displays
+				path_display = { "truncate" },
 				-- Trim indentation at the beginning
 				vimgrep_arguments = {
 					"rg",
@@ -119,19 +149,6 @@ return {
 					"--smart-case",
 					"--trim"
 				},
-
-				pickers = {
-					-- Remove ./ from fd results
-					find_files = {
-						find_command = {
-							"fd",
-							"--type",
-							"f",
-							"--strip-cwd-prefix"
-						}
-					}
-				},
-
 				buffer_previewer_maker = new_maker,
 				mappings = {
 					i = {
@@ -150,6 +167,27 @@ return {
 						["<C-k>"] = actions.move_selection_previous,
 					},
 				},
+			},
+			pickers = {
+				buffers = {
+					show_all_buffers = true,
+					sort_lastused = true,
+					sort_mru = true,
+				},
+
+				-- Remove ./ from fd results
+				find_files = {
+					theme = "dropdown",
+					find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" },
+				},
+				find_command = {
+					"fd",
+					"--type",
+					"f",
+					"--strip-cwd-prefix",
+					"--hidden", -- Include hidden files
+					"--exclude", ".git", -- But exclude .git
+				}
 			},
 			extensions = {
 				fzf = {
