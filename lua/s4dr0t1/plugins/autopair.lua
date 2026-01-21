@@ -15,6 +15,7 @@ return {
 	},
 
 	-- Hooking into the LSP to augment autocompletion
+	-- https://github.com/hrsh7th/nvim-cmp/wiki/Advanced-techniques#nvim-autopairs
 	config = function()
 		local autopairs = require("nvim-autopairs").setup({})
 		local cmp_autopairs = require("nvim-autopairs.completion.cmp")

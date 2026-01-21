@@ -8,10 +8,7 @@
 return {
 	-- The core autocompletion plugin
 	'hrsh7th/nvim-cmp',
-	event = {
-		"InsertEnter",
-		"CmdlineEnter"
-	},
+	event = "InsertEnter",
 
 	dependencies = {
 		-- Autocompletion from LSP
@@ -26,6 +23,9 @@ return {
 
 		-- Autocompletion from .env
 		'SergioRibera/cmp-dotenv',
+
+		-- Autocompletion for function signatures
+		'hrsh7th/cmp-nvim-lsp-signature-help',
 
 		{
 			-- Snippet management engine for neovim
@@ -89,8 +89,10 @@ return {
 
 		-- Configuring nvim-cmp
 		local cmp = require('cmp')
+		local cmp_buffer = require('cmp_buffer')
 		cmp.setup({
 			-- Disable completion in comments and the Telescope
+			-- https://github.com/hrsh7th/nvim-cmp/wiki/Advanced-techniques#disabling-completion-in-certain-contexts-such-as-comments
 			enabled = function()
 				local context = require 'cmp.config.context'
 				if vim.api.nvim_get_mode().mode == 'c' then
@@ -114,6 +116,7 @@ return {
 			},
 
 			-- Specifying a snippet engine
+			-- https://github.com/saadparwaiz1/cmp_luasnip
 			snippet = {
 				expand = function(args)
 					luasnip.lsp_expand(args.body)
@@ -127,19 +130,37 @@ return {
 			},
 
 			sources = cmp.config.sources({
-				{ name = "nvim_lsp" },
+				{ name = "nvim_lsp_signature_help" },
+				{ name = "nvim_lsp",               max_item_count = 20 },
 				{ name = "luasnip" },
-				{ name = "buffer" },
-				{ name = "path" },
-				{ name = "dotenv" },
 				{ name = 'luasnip_choice' },
+			}, {
+				{ name = "buffer", max_item_count = 8 },
+				{ name = "path" },
+				{ name = "dotenv" }
 			}),
 
+			-- https://github.com/hrsh7th/cmp-buffer?tab=readme-ov-file#locality-bonus-comparator-distance-based-sorting
+			sorting = {
+				comparators = {
+					function(...) return cmp_buffer:compare_locality(...) end,
+					cmp.config.compare.offset,
+					cmp.config.compare.exact,
+					cmp.config.compare.score,
+					cmp.config.compare.kind,
+					cmp.config.compare.sort_text,
+					cmp.config.compare.length,
+					cmp.config.compare.order,
+				}
+			},
+
 			-- Keymaps for autocompletion
+			-- https://github.com/hrsh7th/nvim-cmp/wiki/Example-mappings#luasnip
 			--mapping = {
 			mapping = cmp.mapping.preset.insert({
 				-- Invoke autocomplete
 				["<C-Space>"] = cmp.mapping.complete(),
+				-- ["<C-n>"] = cmp.mapping.complete(),
 
 				-- Close the autocompletion box
 				['<C-e>'] = cmp.mapping.abort(),
@@ -151,6 +172,8 @@ return {
 					Safely select entries with <CR>
 					- If nothing is selected (including preselections) add a newline as usual.
 					- If something has explicitly been selected by the user, select i
+
+					For reference: https://github.com/hrsh7th/nvim-cmp/wiki/Example-mappings#safely-select-entries-with-cr
 				--]]
 				["<CR>"] = cmp.mapping({
 					i = function(fallback)
@@ -181,8 +204,8 @@ return {
 					["<Tab>"] = cmp.mapping(function(fallback)
 						if cmp.visible() then
 							cmp.select_next_item()
-						elseif luasnip.expand_or_jumpable() then
-							luasnip.expand_or_jump()
+						elseif luasnip.locally_jumpable(1) then
+							luasnip.jump(1)
 						elseif has_words_before() then
 							cmp.complete()
 						else
@@ -197,8 +220,8 @@ return {
 						if #cmp.get_entries() == 1 then
 							cmp.confirm({ select = true })
 						end
-					elseif luasnip.expand_or_jumpable() then
-						luasnip.expand_or_jump()
+					elseif luasnip.locally_jumpable(1) then
+						luasnip.jump(1)
 					elseif has_words_before() then
 						cmp.complete()
 						if #cmp.get_entries() == 1 then
@@ -218,7 +241,7 @@ return {
 				["<S-Tab>"] = cmp.mapping(function(fallback)
 					if cmp.visible() then
 						cmp.select_prev_item()
-					elseif luasnip.jumpable(-1) then
+					elseif luasnip.locally_jumpable(-1) then
 						luasnip.jump(-1)
 					else
 						fallback()
@@ -234,12 +257,14 @@ return {
 						kind_icons[vim_item.kind] means the icon
 						vim_item.kind means the type
 					--]]
-					vim_item.kind = string.format("%s", kind_icons[vim_item.kind])
+					vim_item.kind = string.format('%s %s', kind_icons[vim_item.kind], vim_item.kind)
 
 					-- Specifying the text that would be displayed next to the icon
 					vim_item.menu = ({
 						nvim_lsp = "[LSP]",
+						nvim_lsp_signature_help = "[Sig]",
 						luasnip = "[Snippet]",
+						luasnip_choice = "[Choice]",
 						buffer = "[Buffer]",
 						path = "[Path]",
 						dotenv = "[ENV]",
