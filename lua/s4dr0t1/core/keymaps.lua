@@ -1,35 +1,10 @@
 --[[
 	Name: keymaps.lua
 	Description: Keymaps independent of any plugin
-	Important links:
-		- Understanding the map() helper function: https://blog.devgenius.io/create-custom-keymaps-in-neovim-with-lua-d1167de0f2c2
-		- Difference b/w remap, noremap, nnoremap, vnoremap: https://stackoverflow.com/questions/3776117/what-is-the-difference-between-the-remap-noremap-nnoremap-and-vnoremap-mapping
+	Uses vim.keymap.set (Neovim 0.7+) which defaults to noremap=true
 --]]
 
-
---[[
-	Helper function used for key remapping
-
-	local function map(mode, lhs, rhs, optionalData)
-	mode here refers to in which mode this keymap will be applied to
-		normal_mode = "n",
-		insert_mode = "i",
-		visual_mode = "v",
-		visual_block_mode = "x",
-		terminal_mode = "t",
-		command_mode = "c",
-
-	lhs = the custom keybinds we need
-	rhs = the commands or existing keybinds to customise
-	optionalData = additional options
---]]
-function map(mode, lhs, rhs, optionalData)
-	local options = { noremap = true }
-	if optionalData then
-		options = vim.tbl_extend("force", options, optionalData)
-	end
-	vim.api.nvim_set_keymap(mode, lhs, rhs, options)
-end
+local map = vim.keymap.set
 
 -- Remap <ESC> to jk
 map('i', 'jk', '<Esc>')

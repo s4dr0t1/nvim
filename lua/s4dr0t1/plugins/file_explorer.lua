@@ -39,6 +39,6 @@ return {
 		})
 
 		-- Keymap for toggling nvim-tree
-		map('n', '<C-b>', ':NvimTreeToggle<CR>', { silent = true })
+		vim.keymap.set('n', '<C-b>', ':NvimTreeToggle<CR>', { silent = true })
 	end
 }
