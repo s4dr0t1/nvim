@@ -12,8 +12,6 @@ return {
 	'williamboman/mason.nvim',
 	dependencies = {
 		'WhoIsSethDaniel/mason-tool-installer.nvim',
-		"williamboman/mason-lspconfig.nvim",
-		"neovim/nvim-lspconfig",
 	},
 
 	keys = {
@@ -88,9 +86,6 @@ return {
 
 			-- Automatically install / update on startup. If set to false nothing
 			run_on_start = true,
-
-			-- Set a delay (ms) before the installation starts
-			start_delay = 3000
 		})
 	end
 }

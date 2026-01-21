@@ -18,7 +18,6 @@ return {
 	dependencies = {
 		"hrsh7th/cmp-nvim-lsp",
 		'williamboman/mason.nvim',
-		'WhoIsSethDaniel/mason-tool-installer.nvim',
 		"williamboman/mason-lspconfig.nvim",
 	},
 
@@ -61,48 +60,37 @@ return {
 		mason_lspconfig.setup({})
 
 		-- Advertise nvim-lsp LSP capabilities to the LSP server so that we can get autocompletion from the LSP
+		-- https://github.com/hrsh7th/cmp-nvim-lsp
 		local custom_capabilities = require('cmp_nvim_lsp').default_capabilities()
 
-		-- Function to setup LSP keymaps which is passed to the custom_attach function and is then run when a LSP server hooks onto the buffer
-		--function lsp_keymaps(client, bufnr)
-		function Lsp_keymaps(client, bufnr)
-			local opts = { noremap = true, silent = true }
-			local set_lsp_key = vim.api.nvim_buf_set_keymap
+		-- Function to setup LSP keymaps when a server attaches to a buffer
+		local function lsp_keymaps(client, bufnr)
+			local map = function(mode, lhs, rhs, desc)
+				vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, silent = true, desc = desc })
+			end
 
-			-- Open float menu for the LSP to show diagnostics
-			set_lsp_key(bufnr, "n", "gl", "<cmd>lua vim.diagnostic.open_float({ border = 'rounded' })<CR>",
-				opts)
+			-- Diagnostics (using vim.diagnostic.jump API from Neovim 0.11+)
+			map("n", "gl", function() vim.diagnostic.open_float({ border = 'rounded' }) end,
+				"Open diagnostic float")
+			map("n", "gk", function() vim.diagnostic.jump({ count = -1, float = { border = "rounded" } }) end,
+				"Previous diagnostic")
+			map("n", "gj", function() vim.diagnostic.jump({ count = 1, float = { border = "rounded" } }) end,
+				"Next diagnostic")
 
-			-- Hover feature
-			set_lsp_key(bufnr, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
+			-- LSP navigation
+			map("n", "K", vim.lsp.buf.hover, "Hover documentation")
+			map("n", "gd", vim.lsp.buf.definition, "Go to definition")
+			map("n", "gD", vim.lsp.buf.declaration, "Go to declaration")
+			map("n", "gi", vim.lsp.buf.implementation, "Go to implementation")
+			map("n", "gR", vim.lsp.buf.references, "Go to references")
 
-			-- Goto the previous diagnostic message
-			set_lsp_key(bufnr, "n", "gk", '<cmd>lua vim.diagnostic.goto_prev({ border = "rounded" })<CR>',
-				opts)
-
-			-- Goto the next diagnostic message
-			set_lsp_key(bufnr, "n", "gj", '<cmd>lua vim.diagnostic.goto_next({ border = "rounded" })<CR>',
-				opts)
-
-			-- Goto the implementation of this thing
-			set_lsp_key(bufnr, "n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-
-			-- Goto the declaration of this thing
-			set_lsp_key(bufnr, "n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
-
-			-- Goto the definition of this thing
-			set_lsp_key(bufnr, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-
-			-- Rename this object using LSP
-			set_lsp_key(bufnr, "n", "gr", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
-
-			-- Go to the reference of this object
-			set_lsp_key(bufnr, "n", "gR", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
+			-- LSP actions
+			map("n", "gr", vim.lsp.buf.rename, "Rename symbol")
 		end
 
 		-- This function is used to setup Format on save functionality
 		local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-		function Enable_Format_On_Save(client, bufnr)
+		local function enable_format_on_save(client, bufnr)
 			if client.supports_method("textDocument/formatting") then
 				vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
 				vim.api.nvim_create_autocmd("BufWritePre", {
@@ -117,12 +105,12 @@ return {
 		end
 
 		-- The custom attach function which tells what to do when a LSP server gets attached to a buffer
-		Custom_attach = function(client, bufnr)
+		CUSTOM_ATTACH = function(client, bufnr)
 			-- Passing the keymaps so that they can be used
-			Lsp_keymaps(client, bufnr)
+			lsp_keymaps(client, bufnr)
 
 			-- Format on save
-			Enable_Format_On_Save(client, bufnr)
+			enable_format_on_save(client, bufnr)
 
 			--[[
 				-- Disable formatting (for future reference)
@@ -132,25 +120,16 @@ return {
 			--]]
 		end
 
-		-- How the LSP will behave visually
-		local signs = {
-			{ name = "DiagnosticSignError", text = " " },
-			{ name = "DiagnosticSignWarn", text = " " },
-			{ name = "DiagnosticSignHint", text = " " },
-			{ name = "DiagnosticSignInfo", text = " " },
-		}
-
-		for _, sign in ipairs(signs) do
-			vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = "" })
-		end
-
-		local config = {
-			-- disable virtual text
+		-- Diagnostic display configuration (Neovim 0.10+ native API)
+		vim.diagnostic.config({
 			virtual_text = false,
-
-			-- show signs
 			signs = {
-				active = signs,
+				text = {
+					[vim.diagnostic.severity.ERROR] = " ",
+					[vim.diagnostic.severity.WARN] = " ",
+					[vim.diagnostic.severity.HINT] = " ",
+					[vim.diagnostic.severity.INFO] = " ",
+				},
 			},
 			update_in_insert = true,
 			underline = true,
@@ -163,8 +142,7 @@ return {
 				header = "",
 				prefix = "",
 			},
-		}
-		vim.diagnostic.config(config)
+		})
 
 		vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
 			border = "rounded",
@@ -202,7 +180,7 @@ return {
 			if server_name == "lua_ls" then
 				-- Configure lua_ls with custom settings
 				vim.lsp.config('lua_ls', {
-					on_attach = Custom_attach,
+					on_attach = CUSTOM_ATTACH,
 					capabilities = custom_capabilities,
 					settings = {
 						Lua = {
@@ -223,12 +201,12 @@ return {
 					}
 				})
 				vim.lsp.enable('lua_ls')
-			-- Add more elseif blocks here for other servers that need custom config
+				-- Add more elseif blocks here for other servers that need custom config
 			else
 				-- Default handler for all other servers
 				vim.lsp.config(server_name, {
 					capabilities = custom_capabilities,
-					on_attach = Custom_attach
+					on_attach = CUSTOM_ATTACH
 				})
 				vim.lsp.enable(server_name)
 			end

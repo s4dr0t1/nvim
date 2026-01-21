@@ -1,7 +1,7 @@
 --[[
-	Name: null_ls.lua
-	Description: Contains configuration files for the null_ls plugin, which is used to hook into the LSP
-	Contains: jose-elias-alvarez/null-ls.nvim
+	Name: none-ls.lua
+	Description: Hooks non-LSP sources (formatters, linters) into the LSP client
+	Repository: nvimtools/none-ls.nvim (community fork of null-ls)
 --]]
 
 return {
@@ -34,8 +34,12 @@ return {
 		null_ls.setup({
 			root_dir = null_ls_utils.root_pattern(".null-ls-root", "Makefile", ".git", "package.json"),
 
-			-- Custom_attach is defined in lspconfig.lua
-			on_attach = Custom_attach,
+			-- Wrapped to defer lookup; Custom_attach is defined in lspconfig.lua
+			on_attach = function(client, bufnr)
+				if CUSTOM_ATTACH then
+					CUSTOM_ATTACH(client, bufnr)
+				end
+			end,
 
 			-- Get debug information as well
 			debug = false,
